@@ -1,0 +1,450 @@
+<title>Mirage GFX v1 Spec</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #F5F7F8;
+    --surface: #FFFFFF;
+    --ink: #1B2733;
+    --muted: #5B6B78;
+    --line: #D8E0E4;
+    --accent: #0E7C86;
+    --accent-ink: #0A5F67;
+    --warn: #9A6700;
+    --code-bg: #EEF2F4;
+    --table-head: #E8EEF0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10161B;
+      --surface: #171F26;
+      --ink: #DCE6EC;
+      --muted: #8FA1AE;
+      --line: #2A3742;
+      --accent: #46C8D2;
+      --accent-ink: #6BD5DD;
+      --warn: #D9A036;
+      --code-bg: #1B252E;
+      --table-head: #1E2933;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10161B;
+    --surface: #171F26;
+    --ink: #DCE6EC;
+    --muted: #8FA1AE;
+    --line: #2A3742;
+    --accent: #46C8D2;
+    --accent-ink: #6BD5DD;
+    --warn: #D9A036;
+    --code-bg: #1B252E;
+    --table-head: #1E2933;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 20px 96px;
+  }
+  main { max-width: 860px; margin: 0 auto; }
+  .measure { max-width: 68ch; }
+
+  h1, h2, h3 {
+    font-family: "Chakra Petch", "IBM Plex Sans", sans-serif;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  h1 { font-size: 2.3rem; font-weight: 700; margin: 0 0 .35rem; letter-spacing: .01em; }
+  h2 {
+    font-size: 1.35rem; font-weight: 600; margin: 3.2rem 0 1rem;
+    padding-top: 1.6rem; border-top: 1px solid var(--line);
+  }
+  h2 .secno { color: var(--accent); margin-right: .55em; font-weight: 700; }
+  h3 { font-size: 1.05rem; font-weight: 600; margin: 1.8rem 0 .6rem; }
+  p { margin: 0 0 1rem; }
+
+  header.doc { padding: 56px 0 8px; }
+  .eyebrow {
+    font-family: "Chakra Petch", sans-serif;
+    font-size: .78rem; font-weight: 600; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: .8rem;
+  }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 60ch; margin: 0; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.6rem;
+    margin-top: 1.4rem; font-family: "IBM Plex Mono", monospace;
+    font-size: .8rem; color: var(--muted);
+  }
+  .meta strong { color: var(--ink); font-weight: 500; }
+
+  code, pre, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .855em;
+  }
+  code { background: var(--code-bg); padding: .1em .35em; border-radius: 3px; }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line);
+    padding: 14px 16px; border-radius: 6px; overflow-x: auto;
+    line-height: 1.5; margin: 0 0 1rem;
+  }
+  pre code { background: none; padding: 0; }
+
+  .tablewrap { overflow-x: auto; margin: 0 0 1.2rem; }
+  table {
+    border-collapse: collapse; width: 100%; font-size: .9rem;
+    font-variant-numeric: tabular-nums;
+  }
+  th {
+    font-family: "Chakra Petch", sans-serif; font-weight: 600;
+    font-size: .78rem; letter-spacing: .06em; text-transform: uppercase;
+    text-align: left; background: var(--table-head);
+    padding: 8px 12px; border: 1px solid var(--line);
+  }
+  td { padding: 7px 12px; border: 1px solid var(--line); vertical-align: top; }
+  td.mono, th.mono { white-space: nowrap; }
+  .num { text-align: right; }
+  tr.total td { font-weight: 600; background: var(--table-head); }
+
+  .callout {
+    border-left: 3px solid var(--accent); background: var(--surface);
+    border-top: 1px solid var(--line); border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 16px; margin: 0 0 1.2rem; border-radius: 0 6px 6px 0;
+    font-size: .95rem;
+  }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout .tag {
+    font-family: "Chakra Petch", sans-serif; font-weight: 600;
+    font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); display: block; margin-bottom: .2rem;
+  }
+  .callout.warn .tag { color: var(--warn); }
+
+  figure { margin: 1.6rem 0 2rem; }
+  figure svg { max-width: 100%; height: auto; display: block; }
+  figcaption {
+    font-size: .85rem; color: var(--muted); margin-top: .7rem;
+    max-width: 68ch;
+  }
+  .figwrap {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 8px; padding: 18px; overflow-x: auto;
+  }
+
+  ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+  li { margin-bottom: .35rem; }
+  li::marker { color: var(--accent); }
+  a { color: var(--accent-ink); }
+  a:focus-visible, :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 2.5rem 0; }
+  .footnote { color: var(--muted); font-size: .85rem; }
+</style>
+
+<main>
+<header class="doc">
+  <div class="eyebrow">Hardware graphics API · Revision 1.0 · 2026-08-26</div>
+  <h1>Mirage GFX v1 Spec</h1>
+  <p class="subtitle">A display-list graphics protocol between an ESP32-S3 geometry engine and a Tang Nano 9K raster/display controller, targeting a skinned, textured character at 480×640 RGB565, 60&nbsp;fps.</p>
+  <div class="meta">
+    <span>host <strong>ESP32-S3</strong></span>
+    <span>raster <strong>GW1NR-9 (Tang Nano 9K)</strong></span>
+    <span>panel <strong>480×640 RGB565 DPI</strong></span>
+    <span>budget <strong>≤6k tris @ 60 fps</strong></span>
+  </div>
+</header>
+
+<h2 id="s1"><span class="secno">1</span>Fixed decisions</h2>
+<p class="measure">These were settled during design review and are treated as constraints by everything below. Reopening one reopens the bandwidth budget in §8.</p>
+<div class="tablewrap"><table>
+  <tr><th>Decision</th><th>Value</th><th>Why</th></tr>
+  <tr><td>Work split</td><td>ESP32 = all per-vertex work; FPGA = all per-pixel work</td><td>8.6k LUTs cannot hold transform + raster; the S3's FPU/SIMD can hold geometry at this scale</td></tr>
+  <tr><td>Display</td><td>480×640 portrait, RGB565 parallel DPI, 60 Hz, pclk ≈ 25 MHz</td><td>Panel has no framebuffer — FPGA streams pixels in hard real time</td></tr>
+  <tr><td>Link</td><td>ESP32-S3 i80/8080 LCD peripheral, 16-bit, DMA → FPGA slave</td><td>20–40 MB/s with headroom; SPI (~5 MB/s) would work at ~4.5 MB/s load but leaves no margin</td></tr>
+  <tr><td>Hidden surface</td><td><b>No Z-buffer.</b> ESP32 depth-sorts triangles back-to-front (ordering table)</td><td>Full-res Z = 600 KB + ~35 MB/s of scattered PSRAM RMW — unaffordable at 60 fps. Single-character sorting artifacts are minor</td></tr>
+  <tr><td>Texture</td><td>One 256×256, <b>8bpp palettized</b>, PSRAM-resident, tiled layout, BSRAM texel cache + 256-entry RGB565 palette</td><td>Halves miss traffic vs RGB565; palette lookup free in BSRAM</td></tr>
+  <tr><td>Texturing math</td><td>Affine (linear UV interpolation), nearest-neighbor, texel × Gouraud modulate</td><td>No per-pixel divide; at ≤6k tris triangles are small enough that affine warp is subtle</td></tr>
+  <tr><td>Clear policy</td><td>Dirty-rectangle only (union of previous + current character bounds)</td><td>Full clear at this resolution costs 36.9 MB/s — as much as scanout</td></tr>
+  <tr><td>Buffering</td><td>Double-buffered in PSRAM; swap latched by scanout at vsync</td><td>Tear-free for free</td></tr>
+</table></div>
+
+<h2 id="s2"><span class="secno">2</span>System dataflow</h2>
+<figure>
+  <div class="figwrap">
+  <svg viewBox="0 0 980 540" role="img" aria-label="Dataflow: the ESP32-S3 geometry pipeline feeds triangle commands over a 16-bit i80 bus into the FPGA's command decoder; the rasterizer, clear engine and texel cache drop into one PSRAM arbiter, which also refills the scanout line FIFO; scanout streams pixels to the RGB565 panel" style="min-width:760px">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+      </marker>
+      <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+    <g fill="none" stroke="currentColor" stroke-width="1.2">
+      <!-- ESP32 outer + stages -->
+      <rect x="20" y="72" width="212" height="300" rx="6"/>
+      <rect x="40" y="112" width="172" height="34" rx="3"/>
+      <rect x="40" y="160" width="172" height="34" rx="3"/>
+      <rect x="40" y="208" width="172" height="34" rx="3"/>
+      <rect x="40" y="256" width="172" height="34" rx="3"/>
+      <rect x="40" y="304" width="172" height="34" rx="3"/>
+      <!-- FPGA outer -->
+      <rect x="320" y="20" width="370" height="470" rx="6"/>
+      <!-- FPGA blocks -->
+      <rect x="340" y="64" width="150" height="40" rx="3"/>   <!-- cmd fifo/decoder -->
+      <rect x="530" y="64" width="150" height="40" rx="3"/>   <!-- vertex ram -->
+      <rect x="340" y="140" width="150" height="52" rx="3"/>  <!-- setup -->
+      <rect x="530" y="140" width="150" height="52" rx="3"/>  <!-- pixel pipe -->
+      <rect x="340" y="228" width="150" height="36" rx="3"/>  <!-- clear engine -->
+      <rect x="530" y="228" width="150" height="36" rx="3"/>  <!-- texel cache -->
+      <rect x="530" y="420" width="150" height="50" rx="3"/>  <!-- scanout -->
+      <!-- panel -->
+      <rect x="770" y="440" width="180" height="70" rx="6"/>
+    </g>
+    <!-- arbiter bar + PSRAM, the crux -->
+    <g fill="none" stroke="var(--accent)" stroke-width="1.6">
+      <rect x="340" y="330" width="340" height="60" rx="3"/>
+      <rect x="770" y="300" width="180" height="120" rx="6"/>
+    </g>
+
+    <!-- ESP32 internal flow -->
+    <g stroke="currentColor" stroke-width="1.2" fill="none">
+      <line x1="126" y1="146" x2="126" y2="158" marker-end="url(#arr)"/>
+      <line x1="126" y1="194" x2="126" y2="206" marker-end="url(#arr)"/>
+      <line x1="126" y1="242" x2="126" y2="254" marker-end="url(#arr)"/>
+      <line x1="126" y1="290" x2="126" y2="302" marker-end="url(#arr)"/>
+      <!-- link + sideband -->
+      <line x1="232" y1="170" x2="318" y2="170" marker-end="url(#arr)"/>
+      <line x1="318" y1="230" x2="232" y2="230" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <!-- decoder -> vertex ram, decoder -> setup -->
+      <line x1="490" y1="84" x2="528" y2="84" marker-end="url(#arr)"/>
+      <line x1="380" y1="104" x2="380" y2="138" marker-end="url(#arr)"/>
+      <!-- vertex ram -> setup -->
+      <path d="M 605 104 L 605 120 L 450 120 L 450 138" marker-end="url(#arr)"/>
+      <!-- setup -> pixel pipe -->
+      <line x1="490" y1="166" x2="528" y2="166" marker-end="url(#arr)"/>
+      <!-- pixel pipe -> texel cache (fetch) -->
+      <line x1="605" y1="192" x2="605" y2="226" marker-end="url(#arr)"/>
+      <!-- scanout -> panel -->
+      <line x1="682" y1="448" x2="766" y2="465" marker-end="url(#arr)"/>
+    </g>
+    <!-- arbiter traffic (accent) -->
+    <g stroke="var(--accent)" stroke-width="1.4" fill="none">
+      <path d="M 528 184 L 512 184 L 512 328" marker-end="url(#arrA)"/>
+      <line x1="570" y1="264" x2="570" y2="328" marker-end="url(#arrA)"/>
+      <line x1="415" y1="264" x2="415" y2="328" marker-end="url(#arrA)"/>
+      <line x1="605" y1="390" x2="605" y2="418" marker-end="url(#arrA)"/>
+      <line x1="682" y1="360" x2="766" y2="360" marker-end="url(#arrA)"/>
+    </g>
+
+    <!-- text -->
+    <g fill="currentColor" font-family="'Chakra Petch',sans-serif" font-size="13" font-weight="600">
+      <text x="36" y="98">ESP32-S3 · geometry</text>
+      <text x="336" y="46">Tang Nano 9K · raster + display</text>
+    </g>
+    <g fill="currentColor" font-family="'IBM Plex Sans',sans-serif" font-size="12">
+      <text x="126" y="133" text-anchor="middle">animation (bones)</text>
+      <text x="126" y="181" text-anchor="middle">skinning (2 wt/vert)</text>
+      <text x="126" y="229" text-anchor="middle">transform + light</text>
+      <text x="126" y="277" text-anchor="middle">cull + depth sort</text>
+      <text x="126" y="325" text-anchor="middle">pack + DMA out</text>
+      <text x="415" y="88" text-anchor="middle">CMD FIFO + decoder</text>
+      <text x="605" y="88" text-anchor="middle">vertex RAM 32 KB</text>
+      <text x="415" y="161" text-anchor="middle">triangle setup</text>
+      <text x="415" y="177" text-anchor="middle">(DSP-assisted)</text>
+      <text x="605" y="161" text-anchor="middle">pixel pipe: UV/RGB</text>
+      <text x="605" y="177" text-anchor="middle">interp · palette · modulate</text>
+      <text x="415" y="250" text-anchor="middle">clear engine (rect)</text>
+      <text x="605" y="250" text-anchor="middle">texel cache 4 KB</text>
+      <text x="605" y="441" text-anchor="middle">scanout + line FIFO</text>
+      <text x="605" y="457" text-anchor="middle">(DPI timing gen)</text>
+      <text x="860" y="470" text-anchor="middle">480×640 RGB565 panel</text>
+      <text x="860" y="488" text-anchor="middle">pclk ≈ 25 MHz · 60 Hz</text>
+    </g>
+    <g fill="var(--accent)" font-family="'Chakra Petch',sans-serif" font-size="13" font-weight="600">
+      <text x="510" y="352" text-anchor="middle">PSRAM ARBITER + BURST COMBINER</text>
+      <text x="860" y="326" text-anchor="middle">64 Mbit PSRAM</text>
+    </g>
+    <g fill="currentColor" font-family="'IBM Plex Mono',monospace" font-size="10.5">
+      <text x="510" y="374" text-anchor="middle">1 scanout · 2 texel miss · 3 pixel · 4 clear · 5 upload</text>
+      <text x="860" y="350" text-anchor="middle">FB A · 600 KB</text>
+      <text x="860" y="368" text-anchor="middle">FB B · 600 KB</text>
+      <text x="860" y="386" text-anchor="middle">texture · 64 KB</text>
+      <text x="860" y="404" text-anchor="middle">~5.9 MB free</text>
+    </g>
+    <g fill="currentColor" font-family="'IBM Plex Sans',sans-serif" font-size="11.5" font-style="italic">
+      <text x="275" y="140" text-anchor="middle">i80 ×16</text>
+      <text x="275" y="155" text-anchor="middle">≈4.5 MB/s used</text>
+      <text x="275" y="248" text-anchor="middle">VSYNC · BUSY</text>
+      <text x="506" y="306" text-anchor="end">pixel bursts</text>
+      <text x="576" y="306" text-anchor="start">miss fill</text>
+      <text x="409" y="306" text-anchor="end">rect fill</text>
+      <text x="611" y="407" text-anchor="start">line refill</text>
+      <text x="724" y="338" text-anchor="middle">≈70 MB/s</text>
+      <text x="724" y="353" text-anchor="middle">bursts</text>
+      <text x="724" y="440" text-anchor="middle">16-bit RGB</text>
+    </g>
+  </svg>
+  </div>
+  <figcaption>Everything per-vertex happens on the ESP32; everything per-pixel happens on the FPGA. Every PSRAM client goes through one arbiter (accent), whose fixed priority keeps scanout — the only hard-real-time client — from ever starving.</figcaption>
+</figure>
+
+<h2 id="s3"><span class="secno">3</span>Link &amp; sideband</h2>
+<p class="measure">The ESP32-S3's <code>esp_lcd</code> i80 bus drives the FPGA as if it were a dumb display controller: 16 data lines + <code>WR</code> strobe + <code>CS</code>, DMA-fed from a command buffer built each frame. The FPGA captures words on <code>WR</code> edges into an asynchronous FIFO that crosses into the core clock domain. Run the bus at 10 MHz for bring-up, 20 MHz once signal integrity is verified (short wires, series resistors ≈ 33 Ω).</p>
+<h3>Sideband (FPGA → ESP32, 2 GPIOs)</h3>
+<div class="tablewrap"><table>
+  <tr><th>Signal</th><th>Meaning</th><th>Host usage</th></tr>
+  <tr><td class="mono">VSYNC</td><td>Pulses at start of vertical blanking; also the moment <code>SWAP</code> takes effect</td><td>Frame pacing: start building frame N+1 on the edge</td></tr>
+  <tr><td class="mono">BUSY</td><td>Command FIFO almost-full (≤ 64 words free)</td><td>DMA pause / poll before large transfers. Sized so the in-flight DMA burst never overflows the FIFO</td></tr>
+</table></div>
+
+<h2 id="s4"><span class="secno">4</span>Command protocol</h2>
+<p class="measure">The stream is a sequence of 16-bit words. Each command begins with a header word — opcode in the high byte, a small immediate argument in the low byte — followed by a fixed- or count-determined payload. Unknown opcodes are fatal in v1 (decoder asserts an error flag readable via a debug pin); there is no resync mechanism, so the host owns framing.</p>
+<div class="tablewrap"><table>
+  <tr><th class="mono">Op</th><th>Name</th><th>Payload (16-bit words)</th><th>Semantics</th></tr>
+  <tr><td class="mono">0x00</td><td class="mono">NOP</td><td>—</td><td>Padding / alignment</td></tr>
+  <tr><td class="mono">0x01</td><td class="mono">CLEAR_RECT</td><td><code>x0 y0 x1 y1 color</code></td><td>Fill inclusive rect in the back buffer with RGB565 <code>color</code>. Host sends the union of last + current frame character bounds</td></tr>
+  <tr><td class="mono">0x02</td><td class="mono">SET_PALETTE</td><td><code>offset count rgb565×count</code></td><td>Write entries into the 256-entry BSRAM palette</td></tr>
+  <tr><td class="mono">0x03</td><td class="mono">TEX_UPLOAD</td><td><code>addr_hi addr_lo len_hi len_lo data…</code></td><td>Write 8bpp texels (2 per word) into the PSRAM texture region. Load-time only; texture layout is 8×4 tiled (§7)</td></tr>
+  <tr><td class="mono">0x04</td><td class="mono">VTX_LOAD</td><td><code>base count (vertex×4)×count</code></td><td>Load post-transform vertices into vertex RAM starting at index <code>base</code> (0–4095)</td></tr>
+  <tr><td class="mono">0x05</td><td class="mono">DRAW_TRIS</td><td><code>count (i0 i1 i2)×count</code></td><td>Rasterize indexed triangles <b>in stream order</b> — host has already sorted back-to-front. Indices reference vertex RAM</td></tr>
+  <tr><td class="mono">0x06</td><td class="mono">SET_STATE</td><td>arg byte in header</td><td>bit0 = texturing enable · bit1 = Gouraud modulate enable (off = texel only) · bit2 = flat fill (ignore texture, use vertex 0 color)</td></tr>
+  <tr><td class="mono">0x07</td><td class="mono">SWAP</td><td>—</td><td>Request buffer swap; scanout latches the new front-buffer address at the next vsync. Draw commands after <code>SWAP</code> target the new back buffer</td></tr>
+</table></div>
+
+<h3>Vertex format — 4 words, 8 bytes</h3>
+<div class="tablewrap"><table>
+  <tr><th>Word</th><th>Field</th><th>Format</th><th>Notes</th></tr>
+  <tr><td class="mono num">0</td><td class="mono">X</td><td class="mono">s12.4 fixed</td><td>Screen-space, sub-pixel; covers −2048…+2047.94 so off-screen verts of clipped tris survive</td></tr>
+  <tr><td class="mono num">1</td><td class="mono">Y</td><td class="mono">s12.4 fixed</td><td>As above. Guard-band clip on the host keeps values in range</td></tr>
+  <tr><td class="mono num">2</td><td class="mono">V « 8 | U</td><td class="mono">u8 × 2</td><td>Texel coordinates into the 256×256 map, nearest-neighbor</td></tr>
+  <tr><td class="mono num">3</td><td class="mono">COLOR</td><td class="mono">RGB565</td><td>Per-vertex lit color; interpolated, then multiplied with the texel</td></tr>
+</table></div>
+<div class="callout">
+  <span class="tag">Note — no Z anywhere</span>
+  Because hidden surfaces are resolved by host-side sorting, the vertex carries no depth, the FPGA interpolates no depth, and no depth memory exists. This is the single biggest saver of LUTs and PSRAM bandwidth in the design.
+</div>
+
+<h3>Per-frame traffic at worst case (6k tris ≈ 3.6k verts)</h3>
+<div class="tablewrap"><table>
+  <tr><th>Item</th><th class="num">Per frame</th><th class="num">At 60 fps</th></tr>
+  <tr><td>Vertices (3.6k × 4 words)</td><td class="num">28.8 KB</td><td class="num">1.73 MB/s</td></tr>
+  <tr><td>Indices (6k × 3 words)</td><td class="num">36 KB</td><td class="num">2.16 MB/s</td></tr>
+  <tr><td>Headers, clear, swap</td><td class="num">&lt; 0.1 KB</td><td class="num">—</td></tr>
+  <tr class="total"><td>Total link load</td><td class="num">≈ 65 KB</td><td class="num">≈ 3.9 MB/s — ~15% of a 20 MHz ×16 bus</td></tr>
+</table></div>
+
+<h2 id="s5"><span class="secno">5</span>FPGA architecture</h2>
+<h3>Clock domains</h3>
+<div class="tablewrap"><table>
+  <tr><th>Domain</th><th>Clock</th><th>Contents</th></tr>
+  <tr><td>Link</td><td class="mono">i80 WR strobe (≤20 MHz)</td><td>Capture registers → async FIFO write side</td></tr>
+  <tr><td>Core</td><td class="mono">~100 MHz (PLL)</td><td>Decoder, rasterizer, clear engine, arbiter, PSRAM controller</td></tr>
+  <tr><td>Pixel</td><td class="mono">≈25 MHz (PLL)</td><td>DPI timing generator; reads line FIFO (async)</td></tr>
+</table></div>
+
+<h3>Rasterizer</h3>
+<p class="measure">Edge-function (Pineda) rasterizer over the triangle's bounding box: setup computes three edge equations plus five interpolant gradients (U, V, R, G, B) using the GW1NR-9's DSP macros, then the walk phase steps one pixel per core clock, accumulating interpolants with adds only. Per pixel: three edge signs decide coverage → texel-cache lookup (8bpp) → palette to RGB565 → modulate with interpolated color (three small DSP multiplies) → into the burst write combiner, which coalesces scanline runs into PSRAM bursts. Top-left fill rule so shared edges never double-draw or gap — with back-to-front blending-free rendering this only matters for cracks, but cracks are visible.</p>
+
+<h3>BSRAM allocation (26 blocks × 18 Kbit = 58.5 KB)</h3>
+<div class="tablewrap"><table>
+  <tr><th>Buffer</th><th class="num">Size</th><th class="num">Blocks</th><th>Purpose</th></tr>
+  <tr><td>Vertex RAM</td><td class="num">32 KB</td><td class="num">15</td><td>4096 × 8 B — whole character resident, no batching</td></tr>
+  <tr><td>Texel cache</td><td class="num">4 KB + tags</td><td class="num">2</td><td>128 lines × 32 B; one line = one 8×4 texel tile</td></tr>
+  <tr><td>Line FIFO</td><td class="num">3.75 KB</td><td class="num">2</td><td>4 scanlines × 480 × RGB565 — rides out arbiter latency</td></tr>
+  <tr><td>Command FIFO</td><td class="num">2 KB</td><td class="num">1</td><td>1024 words; BUSY asserts at ≤64 free</td></tr>
+  <tr><td>Palette</td><td class="num">512 B</td><td class="num">1</td><td>256 × RGB565</td></tr>
+  <tr class="total"><td>Total</td><td class="num">≈ 42 KB</td><td class="num">21 / 26</td><td>5 blocks spare</td></tr>
+</table></div>
+
+<h3>LUT budget estimate (of 8,640)</h3>
+<div class="tablewrap"><table>
+  <tr><th>Block</th><th class="num">Est. LUTs</th></tr>
+  <tr><td>PSRAM controller + arbiter</td><td class="num">1,200</td></tr>
+  <tr><td>Triangle setup (DSP-assisted)</td><td class="num">1,500</td></tr>
+  <tr><td>Edge walk + 5 interpolators</td><td class="num">1,000</td></tr>
+  <tr><td>Texel cache + palette + modulate</td><td class="num">700</td></tr>
+  <tr><td>Command decoder + CSRs</td><td class="num">500</td></tr>
+  <tr><td>Scanout + DPI timing + FIFO control</td><td class="num">450</td></tr>
+  <tr><td>i80 capture + async FIFO</td><td class="num">250</td></tr>
+  <tr><td>Clear engine</td><td class="num">150</td></tr>
+  <tr><td>Debug (perf counters, UART)</td><td class="num">400</td></tr>
+  <tr class="total"><td>Total</td><td class="num">≈ 6,150 (71%)</td></tr>
+</table></div>
+<p class="footnote measure">If synthesis lands hot: drop Gouraud to flat per-triangle color (−~400 LUTs, minor visual cost on textured geometry), shrink debug logic, or narrow interpolant precision. Do not cut the burst write combiner — it is load-bearing for §8.</p>
+
+<h2 id="s6"><span class="secno">6</span>PSRAM memory map</h2>
+<div class="tablewrap"><table>
+  <tr><th class="mono">Base</th><th>Region</th><th class="num">Size</th><th>Notes</th></tr>
+  <tr><td class="mono">0x00_0000</td><td>Framebuffer A</td><td class="num">600 KB</td><td>480×640 × RGB565, row-major, portrait orientation</td></tr>
+  <tr><td class="mono">0x10_0000</td><td>Framebuffer B</td><td class="num">600 KB</td><td>—</td></tr>
+  <tr><td class="mono">0x20_0000</td><td>Texture 0</td><td class="num">64 KB</td><td>256×256 × 8bpp, 8×4 tiled</td></tr>
+  <tr><td class="mono">0x21_0000</td><td>Reserved</td><td class="num">~5.9 MB</td><td>Future: more textures, second character, Z if ever needed</td></tr>
+</table></div>
+
+<h2 id="s7"><span class="secno">7</span>Texture path</h2>
+<p class="measure">Texels are stored in <b>8×4 tiles</b> (32 bytes = one cache line = one efficient PSRAM burst) rather than row-major, so a cache miss pulls in a 2-D neighborhood instead of a 1-D strip — this is what makes the hit rate survive triangles that walk the texture diagonally. Address of texel (u,v): tile index <code>(v»2)·32 + (u»3)</code>, byte within tile <code>(v&amp;3)·8 + (u&amp;7)</code>. The host-side asset pipeline (a small Python script in the repo) does palette quantization to 256 colors and the tile swizzle offline; the ESP32 uploads the finished blob at boot with <code>TEX_UPLOAD</code> + <code>SET_PALETTE</code>.</p>
+<div class="callout">
+  <span class="tag">Measure, don't assume</span>
+  The texel cache carries a hit/miss perf counter from day one. Expected hit rate on character UVs is &gt; 90%; if measured lower, first suspects are UV seams in the mesh and tile size mismatch with typical triangle size.
+</div>
+
+<h2 id="s8"><span class="secno">8</span>PSRAM bandwidth budget</h2>
+<p class="measure">The one budget that rules the design. Realistic sustained HyperRAM throughput with mixed burst sizes is assumed at ~120 MB/s until measured (milestone M2 gates on the real number).</p>
+<div class="tablewrap"><table>
+  <tr><th>Client</th><th class="num">Priority</th><th class="num">Load</th><th>Pattern</th></tr>
+  <tr><td>Scanout refill</td><td class="num">1 (hard RT)</td><td class="num">36.9 MB/s</td><td>Perfect line bursts</td></tr>
+  <tr><td>Texel cache miss</td><td class="num">2</td><td class="num">~5–10 MB/s</td><td>32 B bursts, stalls pixel pipe</td></tr>
+  <tr><td>Pixel burst writes</td><td class="num">3</td><td class="num">~15–20 MB/s</td><td>Scanline-run bursts</td></tr>
+  <tr><td>Clear engine</td><td class="num">4</td><td class="num">~12 MB/s</td><td>Long bursts, dirty rect ≈ ⅓ screen</td></tr>
+  <tr><td>Texture upload</td><td class="num">5</td><td class="num">load-time only</td><td>—</td></tr>
+  <tr class="total"><td>Total steady-state</td><td class="num">—</td><td class="num">≈ 70–79 MB/s</td><td>~60% of assumed sustained rate</td></tr>
+</table></div>
+
+<h2 id="s9"><span class="secno">9</span>ESP32-S3 frame loop</h2>
+<pre><code>on VSYNC edge:                          // 16.7 ms budget
+  advance animation clock; evaluate bone matrices     (~0.2 ms)
+  skin vertices  — 2 influences, fixed-point,
+                   PIE SIMD if float is too slow      (~0.3–1.0 ms)
+  transform to screen space, guard-band clip,
+  back-face cull (~halves triangle count), light      (~0.8 ms)
+  bucket-sort surviving tris by view depth
+    (ordering table, 1024 buckets, O(n))              (~0.4 ms)
+  compute dirty rect = union(prev bbox, cur bbox)
+  emit stream: CLEAR_RECT · VTX_LOAD · SET_STATE
+               · DRAW_TRIS (sorted) · SWAP
+  start i80 DMA (overlaps with next frame's CPU work) (~4 ms wire time)</code></pre>
+<p class="measure">Total CPU ≈ 2–3 ms of a 16.7 ms frame on one core — enough headroom that game logic, IK, or a second character fits later. Core 0 stays free for the app; core 1 owns the render loop. Note the pipeline is one frame deep: the frame built now displays at the vsync after next.</p>
+
+<h2 id="s10"><span class="secno">10</span>Milestones</h2>
+<p class="measure">Each milestone is independently demonstrable, and two carry <b>measurement gates</b> that validate the budget assumptions before the expensive blocks get built on top of them.</p>
+<div class="tablewrap"><table>
+  <tr><th class="mono">#</th><th>Deliverable</th><th>Exit criterion</th></tr>
+  <tr><td class="mono">M0</td><td>Toolchains up; blinky on both boards; pin plan for LCD + i80 + sideband</td><td>Both build/flash loops under a minute</td></tr>
+  <tr><td class="mono">M1</td><td>DPI timing generator → test pattern (no PSRAM)</td><td>Stable 60 Hz image on the panel</td></tr>
+  <tr><td class="mono">M2</td><td>PSRAM controller + arbiter v0; scanout from framebuffer</td><td><b>Gate:</b> measured sustained throughput ≥ 100 MB/s mixed-burst; zero scanout underruns over minutes</td></tr>
+  <tr><td class="mono">M3</td><td>i80 link + raw pixel-poke command</td><td><b>Gate:</b> measured link ≥ 10 MB/s; ESP32 draws to screen</td></tr>
+  <tr><td class="mono">M4</td><td>Command decoder, <code>CLEAR_RECT</code>, <code>SWAP</code>, double buffering</td><td>Tear-free alternating-color demo, VSYNC/BUSY sideband working</td></tr>
+  <tr><td class="mono">M5</td><td>Flat-fill rasterizer + vertex RAM + <code>DRAW_TRIS</code></td><td>Spinning flat-shaded cube from the ESP32 at 60 fps</td></tr>
+  <tr><td class="mono">M6</td><td>Gouraud interpolation</td><td>Smooth-shaded cube; no cracks or double-drawn edges between adjacent tris</td></tr>
+  <tr><td class="mono">M7</td><td>Texture: palette, tiled fetch, cache, modulate; asset pipeline script</td><td>Textured cube; cache hit counter &gt; 90% on real UVs</td></tr>
+  <tr><td class="mono">M8</td><td>ESP32 geometry library; static (unskinned) character mesh renders</td><td>Character at 60 fps, sorted, dirty-rect clear working</td></tr>
+  <tr><td class="mono">M9</td><td>Skinning + animation playback</td><td>Worst-case 6k-tri animated character holds 60 fps</td></tr>
+</table></div>
+
+<h2 id="s11"><span class="secno">11</span>Risks</h2>
+<div class="tablewrap"><table>
+  <tr><th>Risk</th><th>Exposure</th><th>Mitigation</th></tr>
+  <tr><td>PSRAM sustained throughput below assumption</td><td>Whole §8 budget</td><td>M2 gate measures before rasterizer exists; fallbacks: 30 fps present rate with 60 Hz scanout, or shrink dirty region further</td></tr>
+  <tr><td>i80 signal integrity at 20 MHz over jumpers</td><td>Link errors corrupt the stream (no resync in v1)</td><td>Bring up at 10 MHz; short wires + series resistors; M3 soak test with CRC-checked test pattern</td></tr>
+  <tr><td>Sort artifacts where limbs intersect</td><td>Cosmetic</td><td>Accept (PS1-authentic); art-side fix is avoiding interpenetrating geometry; escalation is per-pixel Z, which needs the §8 budget renegotiated</td></tr>
+  <tr><td>LUT overrun at synthesis</td><td>Schedule</td><td>Fallback ladder in §5; flat shading is the designated sacrifice</td></tr>
+  <tr><td>Panel timing quirks (porch values, DE vs sync mode)</td><td>M1 slip</td><td>Get the panel's real datasheet before M1; DE-mode is the safer default if supported</td></tr>
+</table></div>
+
+<hr>
+<p class="footnote">Mirage GFX v1 · ESP32-S3 ↔ Tang Nano 9K (GW1NR-9) · Numbers marked "≈" are estimates pending the M2/M3 measurement gates.</p>
+</main>
